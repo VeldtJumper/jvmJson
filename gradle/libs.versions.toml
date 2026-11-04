@@ -1,0 +1,30 @@
+[versions]
+kotlin = "2.4.21"
+ksp = "2.3.13"
+jmh = "1.37"
+jmhPlugin = "0.7.4"
+moshi = "1.15.2"
+kotlinxSerialization = "1.12.0"
+jackson = "2.22.4"
+gson = "2.15.0"
+junit = "5.14.4"
+
+[libraries]
+moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
+moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-module-blackbird = { module = "com.fasterxml.jackson.module:jackson-module-blackbird", version.ref = "jackson" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.14.4" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jmh = { id = "me.champeau.jmh", version.ref = "jmhPlugin" }

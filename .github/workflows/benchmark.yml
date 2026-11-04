@@ -1,0 +1,100 @@
+name: Benchmark & Deploy Dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "gradle/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradle.properties"
+      - "scripts/**"
+      - ".github/workflows/benchmark.yml"
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      warmup_iterations:
+        description: "JMH warmup iterations (1 second each)"
+        required: false
+        default: "5"
+      measurement_iterations:
+        description: "JMH measurement iterations (1 second each)"
+        required: false
+        default: "20"
+      forks:
+        description: "JMH forks per benchmark"
+        required: false
+        default: "1"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run round-trip tests
+        run: ./gradlew test --no-daemon
+
+      - name: Run JMH benchmarks
+        env:
+          WARMUP_ITERATIONS: ${{ github.event.inputs.warmup_iterations || '5' }}
+          MEASUREMENT_ITERATIONS: ${{ github.event.inputs.measurement_iterations || '20' }}
+          FORKS: ${{ github.event.inputs.forks || '1' }}
+        run: |
+          ./gradlew jmh --no-daemon \
+            -Pjmh.warmupIterations="$WARMUP_ITERATIONS" \
+            -Pjmh.iterations="$MEASUREMENT_ITERATIONS" \
+            -Pjmh.fork="$FORKS"
+
+      - name: Generate dashboard
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          python3 scripts/generate_dashboard.py \
+            --results build/results/jmh/results.json \
+            --payloads build/results/jmh/payload-stats.json \
+            --out site
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
