@@ -20,6 +20,8 @@ The same logical payload is serialized and deserialized with six idiomatic setup
 | Jackson + Blackbird | `jackson-module-blackbird` bytecode module | 2.22.4 |
 | Gson | Default reflective `Gson` | 2.15.0 |
 
+All libraries use their normal/default configuration. There is no per-library tuning beyond registering the Kotlin module or adapter, so the comparison reflects the setup a Kotlin/JVM team would typically start with.
+
 Toolchain: **Kotlin 2.4.21**, **KSP 2.3.13**, **JDK 21**, **Gradle 8.14.4**, **JMH 1.37**.
 
 ## Workload
