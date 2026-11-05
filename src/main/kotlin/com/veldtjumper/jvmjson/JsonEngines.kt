@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
  * the benchmark methods small and ensures every library is set up the same way.
  */
 class JsonEngines {
-    val kotlinxJson: Json = Json { ignoreUnknownKeys = true }
+    val kotlinxJson: Json = Json
 
     val moshiReflectAdapter: JsonAdapter<PlainFeed> =
         Moshi.Builder()
