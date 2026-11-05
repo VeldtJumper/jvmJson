@@ -647,7 +647,6 @@ HTML_TEMPLATE = r"""<!doctype html>
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
-    .payload-count { color: var(--faint); font-size: 11px; }
     .payload-size {
       margin-top: 7px;
       font-size: 24px;
@@ -983,7 +982,7 @@ HTML_TEMPLATE = r"""<!doctype html>
       control.innerHTML = DATA.sizes
         .map(
           (size) =>
-            `<button type="button" data-size="${size.userCount}" aria-pressed="false" aria-label="${escapeHtml(size.label)} payload (${formatNumber(size.userCount)} users)" title="${formatNumber(size.userCount)} users">${escapeHtml(size.label)}</button>`
+            `<button type="button" data-size="${size.userCount}" aria-pressed="false" aria-label="${escapeHtml(size.label)} payload">${escapeHtml(size.label)}</button>`
         )
         .join("");
 
@@ -1015,12 +1014,9 @@ HTML_TEMPLATE = r"""<!doctype html>
         .map(
           (size) => `
             <div class="payload-card">
-              <div class="payload-top">
-                <span class="payload-name">JSON payload</span>
-                <span class="payload-count">${formatNumber(size.userCount)} users</span>
-              </div>
+              <div class="payload-name">JSON payload</div>
               <div class="payload-size">${escapeHtml(size.label)}</div>
-              <div class="payload-sub">${formatNumber(size.jsonBytes)} bytes · ${(size.jsonBytes / size.userCount).toFixed(0)} B/user</div>
+              <div class="payload-sub">${formatNumber(size.jsonBytes)} bytes</div>
               <code>sha256 ${escapeHtml(size.sha256.slice(0, 20))}…</code>
             </div>`
         )
