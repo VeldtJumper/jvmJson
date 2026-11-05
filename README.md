@@ -99,6 +99,8 @@ Manual runs accept `warmup_iterations`, `measurement_iterations`, and `forks` in
 
 The workflow uses a fixed `ubuntu-24.04` runner, Temurin JDK 21, and a pinned Gradle wrapper. Pages is deployed through the official Pages actions with `build_type: workflow`.
 
+Pages is already enabled on this repository. If you fork the project, enable Pages with **GitHub Actions** as the source before running the workflow.
+
 ## Project layout
 
 ```text
