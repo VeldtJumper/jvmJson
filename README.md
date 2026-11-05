@@ -131,6 +131,10 @@ The filters switch between serialization and deserialization and between the thr
 
 This is a microbenchmark, not a verdict. It does not model schema evolution, streaming parsers, polymorphic payloads, validation, or allocation pressure in a large application heap. A library that wins here can still be the wrong choice for a codebase because of API design, Kotlin support, or generated-code trade-offs. Use the dashboard as one input, then measure your own payloads.
 
+### Why Gson can win deserialization
+
+Gson's default reflective adapter can allocate a class without invoking its constructor by falling back to JDK `Unsafe`. For a Kotlin data class with no no-arg constructor, that skips Kotlin constructor invocation and null checks, and Gson can even leave a non-null Kotlin property null if the input is malformed. That is a real part of its deserialization advantage here; it is not just parser speed. The suite measures each library under its normal/default configuration on well-formed payloads, not equivalent validation semantics. For a semantics-matched comparison, add a Gson variant with `GsonBuilder.disableJdkUnsafe()` (and a constructor-based adapter) or compare against the Kotlin-aware libraries.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
