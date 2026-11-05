@@ -28,11 +28,11 @@ Toolchain: **Kotlin 2.4.21**, **KSP 2.3.13**, **JDK 21**, **Gradle 8.14.4**, **J
 
 One deterministic `Feed` model contains users, nested addresses with geo coordinates, tags, and posts. The generator is seeded, so every run produces the same bytes.
 
-| Payload | Users | JSON size |
-| --- | ---: | ---: |
-| Small | 10 | 8,343 B |
-| Medium | 1,000 | 845,128 B |
-| Large | 25,000 | 21,302,262 B |
+| JSON payload | Users | Exact bytes |
+| ---: | ---: | ---: |
+| 8.3 KB | 10 | 8,343 B |
+| 845.1 KB | 1,000 | 845,128 B |
+| 21.30 MB | 25,000 | 21,302,262 B |
 
 For every payload, the suite measures:
 

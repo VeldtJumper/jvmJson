@@ -80,7 +80,14 @@ METHODS = {
     "moshiReflectDeserialize": ("moshi-reflect", "Deserialize"),
 }
 
-SIZE_LABELS = {10: "Small", 1_000: "Medium", 25_000: "Large"}
+
+def format_bytes(num_bytes: int) -> str:
+    """Human-readable decimal byte size, e.g. 8.3 KB, 845.1 KB, 21.30 MB."""
+    if num_bytes >= 1_000_000:
+        return f"{num_bytes / 1_000_000:.2f} MB"
+    if num_bytes >= 1_000:
+        return f"{num_bytes / 1_000:.1f} KB"
+    return f"{num_bytes} B"
 
 VERSION_LABELS = {
     "kotlin": "Kotlin",
@@ -170,7 +177,7 @@ def build_rows(results: list[dict], payloads: dict[int, dict]) -> tuple[list[dic
                 "color": library["color"],
                 "operation": operation,
                 "size": user_count,
-                "sizeLabel": SIZE_LABELS.get(user_count, f"{user_count:,} users"),
+                "sizeLabel": format_bytes(bytes_),
                 "payloadBytes": bytes_,
                 "opsPerSec": score,
                 "msPerOp": 1000.0 / score if score else 0.0,
@@ -190,7 +197,7 @@ def build_rows(results: list[dict], payloads: dict[int, dict]) -> tuple[list[dic
         sizes.append(
             {
                 "userCount": user_count,
-                "label": SIZE_LABELS.get(user_count, f"{user_count:,} users"),
+                "label": format_bytes(int(payload["jsonBytes"])),
                 "jsonBytes": int(payload["jsonBytes"]),
                 "sha256": payload["sha256"],
             }
@@ -779,7 +786,7 @@ HTML_TEMPLATE = r"""<!doctype html>
     <section class="winner" id="winner" aria-live="polite">
       <div class="winner-rank">01</div>
       <div class="winner-copy">
-        <div class="winner-kicker" id="winnerKicker">Fastest deserialize · Medium</div>
+        <div class="winner-kicker" id="winnerKicker">Fastest deserialize · JSON payload</div>
         <h2 id="winnerName">Loading…</h2>
         <div class="winner-detail" id="winnerDetail"></div>
       </div>
@@ -976,7 +983,7 @@ HTML_TEMPLATE = r"""<!doctype html>
       control.innerHTML = DATA.sizes
         .map(
           (size) =>
-            `<button type="button" data-size="${size.userCount}" aria-pressed="false">${escapeHtml(size.label)}<em>${formatNumber(size.userCount)} users</em></button>`
+            `<button type="button" data-size="${size.userCount}" aria-pressed="false" aria-label="${escapeHtml(size.label)} payload (${formatNumber(size.userCount)} users)" title="${formatNumber(size.userCount)} users">${escapeHtml(size.label)}</button>`
         )
         .join("");
 
@@ -1009,11 +1016,11 @@ HTML_TEMPLATE = r"""<!doctype html>
           (size) => `
             <div class="payload-card">
               <div class="payload-top">
-                <span class="payload-name">${escapeHtml(size.label)}</span>
+                <span class="payload-name">JSON payload</span>
                 <span class="payload-count">${formatNumber(size.userCount)} users</span>
               </div>
-              <div class="payload-size">${formatBytes(size.jsonBytes)}</div>
-              <div class="payload-sub">${(size.jsonBytes / size.userCount).toFixed(0)} bytes / user</div>
+              <div class="payload-size">${escapeHtml(size.label)}</div>
+              <div class="payload-sub">${formatNumber(size.jsonBytes)} bytes · ${(size.jsonBytes / size.userCount).toFixed(0)} B/user</div>
               <code>sha256 ${escapeHtml(size.sha256.slice(0, 20))}…</code>
             </div>`
         )
@@ -1180,9 +1187,9 @@ HTML_TEMPLATE = r"""<!doctype html>
       });
 
       document.getElementById("opsChip").textContent = `${state.operation} · ${size?.label ?? state.size}`;
-      document.getElementById("mbChip").textContent = `${size?.label ?? state.size} · ${formatBytes(size?.jsonBytes)}`;
+      document.getElementById("mbChip").textContent = `${size?.label ?? state.size}`;
       document.getElementById("tableCaption").textContent =
-        `${state.operation} · ${size?.label ?? state.size} payload · ${formatBytes(size?.jsonBytes)} · ${currentRows.length} libraries`;
+        `${state.operation} · ${size?.label ?? state.size} payload · ${currentRows.length} libraries`;
 
       document.getElementById("resultsBody").innerHTML = currentRows
         .map((row, index) => {
@@ -1283,7 +1290,7 @@ def main() -> None:
     print(f"  rows: {len(rows)}")
     print(f"  libraries: {len(LIBRARIES)}")
     size_summary = ", ".join(
-        "{} users / {} B".format(size["userCount"], size["jsonBytes"]) for size in sizes
+        "{} / {} B".format(size["label"], size["jsonBytes"]) for size in sizes
     )
     print(f"  sizes: {size_summary}")
 
